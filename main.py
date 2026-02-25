@@ -84,6 +84,7 @@ _ALLOWED_FUNCS = {
     "min": np.minimum,
     "max": np.maximum,
     "clip": np.clip,
+    "safe_div": safe_div,   # ✅ allow safe_div in formulas
 }
 
 _ALLOWED_NODES = (
@@ -94,6 +95,7 @@ _ALLOWED_NODES = (
     ast.Name,
     ast.Load,
     ast.Constant,
+    ast.keyword,            # ✅ allow keyword nodes
     ast.Add,
     ast.Sub,
     ast.Mult,
@@ -141,7 +143,7 @@ def eval_formula(expr: str, env: Dict[str, np.ndarray]) -> np.ndarray:
     tree = ast.parse(expr, mode="eval")
     _validate_ast(tree, allowed_names)
     code = compile(tree, "<formula>", "eval")
-    scope = {**_ALLOWED_FUNCS, **env, "safe_div": safe_div}
+    scope = {**_ALLOWED_FUNCS, **env}
     return np.asarray(eval(code, {"__builtins__": {}}, scope), dtype=float)
 
 
