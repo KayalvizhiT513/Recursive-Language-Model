@@ -268,7 +268,10 @@ def _primitive_candidates(cols: List[str]) -> List[str]:
     for i in range(len(cols)):
         for j in range(i + 1, len(cols)):
             a, b = cols[i], cols[j]
-            cands += [f"({a}+{b})", f"({a}-{b})", f"({b}-{a})", f"({a}*{b})", f"({a}/{b})", f"({b}/{a})"]
+            cands += [
+                f"({a}+{b})", f"({a}-{b})", f"({b}-{a})", f"({a}*{b})",
+                f"safe_div({a},{b})", f"safe_div({b},{a})"   # ✅ safer than / for real data
+            ]
     return cands
 
 def _affine_candidates(cols: List[str], coeffs: Iterable[int] = (-2, -1, 1, 2), bias: Iterable[int] = (-5, -2, -1, 0, 1, 2, 5)) -> List[str]:
@@ -320,7 +323,7 @@ def residual_brutish_candidates(cols: List[str]) -> List[str]:
     for i in range(len(cols)):
         for j in range(i + 1, len(cols)):
             a, b = cols[i], cols[j]
-            cands += [f"({a}+{b})", f"({a}-{b})", f"({a}*{b})", f"({a}/{b})"]
+            cands += [f"({a}+{b})", f"({a}-{b})", f"({a}*{b})", f"safe_div({a},{b})"]
     return cands
 
 
@@ -427,7 +430,6 @@ def rlm_find_formula(
         print(f"\nStarting with: {best_expr}\n")
 
     cols = [c for c in df.columns if c != target]
-    return
 
     # NEW: track residual formulas we've already tried across iterations
     seen_resid: set[str] = set()
